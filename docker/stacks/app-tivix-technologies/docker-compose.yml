@@ -1,0 +1,32 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: tivix-technologies-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - web
+      - internal-services
+    depends_on:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tivix-technologies.rule=Host(`tivix.com.br`) || Host(`www.tivix.com.br`)"
+      - "traefik.http.routers.tivix-technologies.entrypoints=websecure"
+      - "traefik.http.routers.tivix-technologies.tls.certresolver=myresolver"
+      - "traefik.http.services.tivix-technologies.loadbalancer.server.port=80"
+      - "traefik.docker.network=web"
+
+  app:
+    image: ghcr.io/rdemora2/front-site--tivix-technologies:latest
+    container_name: tivix-technologies-app
+    restart: unless-stopped
+    networks:
+      - internal-services
+
+networks:
+  web:
+    external: true
+  internal-services:
+    external: true
