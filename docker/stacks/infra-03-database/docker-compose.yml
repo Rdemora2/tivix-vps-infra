@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    restart: unless-stopped
+    networks:
+      - internal-services
+    volumes:
+      - ../../data/postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: tivixadmin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: appdb
+
+  backup:
+    image: prodrigestivill/postgres-backup-local
+    container_name: postgres-backup
+    restart: unless-stopped
+    networks:
+      - internal-services
+    volumes:
+      - ../../data/backups:/backups
+    environment:
+      POSTGRES_HOST: postgres-db
+      POSTGRES_DB: appdb
+      POSTGRES_USER: tivixadmin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+
+networks:
+  internal-services:
+    external: true

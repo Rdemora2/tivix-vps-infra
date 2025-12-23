@@ -1,0 +1,6 @@
+**/.env
+
+**/acme.json
+
+.DS_Store
+Thumbs.db
